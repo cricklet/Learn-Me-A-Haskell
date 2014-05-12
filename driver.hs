@@ -19,10 +19,13 @@ drawPixel :: Float -> Float -> Picture
 drawPixel x y
   = drawRect x y (x+1) (y+1)
 
-testPixel :: Picture
-testPixel
+scaleScreen :: Picture -> Picture
   = Translate 0 0
   $ Scale renderScale renderScale
+
+testPixel :: Picture
+testPixel
+  = scaleScreen
   $ Color black
   $ drawRect 0 0 1 1
 
