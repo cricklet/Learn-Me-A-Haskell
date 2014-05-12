@@ -3,7 +3,8 @@ import Graphics.Gloss
 windowSize = 200
 pixelsSize = 20
 
-renderScale = windowSize / pixelsSize
+-- renderScale = windowSize / pixelsSize
+renderScale = 10
 
 main
  = display window white draw
@@ -27,7 +28,7 @@ testPixel
 
 testPixels :: Picture
 testPixels
-  = Pictures $ map (drawPixel 0) [0..20]
+  = Pictures $ map (drawPixel 0) [0..10]
 
 -- Use a resolution of 20 x 20 with 0,0 in the center
 
