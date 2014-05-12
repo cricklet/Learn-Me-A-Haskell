@@ -20,8 +20,8 @@ pixel x y
   = Scale renderScale renderScale
   $ rect (x - 0.5) (y - 0.5) (x + 0.5) (y + 0.5)
 
-coloredPixel x y
-  = (Color red) (pixel x y)
+coloredPixel color x y
+  = (Color color) (pixel x y)
 
 testPixel :: Picture
 testPixel
@@ -31,7 +31,9 @@ testPixel
 testPixels :: Picture
 testPixels
   = Pictures
-  $ map (coloredPixel 0) [1..2]
+  $ zipWith3 (\c x y -> coloredPixel c x y)
+      [red, yellow, blue, green, black, orange]
+      [1..5] [1..5]
 
 -- Use a resolution of 20 x 20 with 0,0 in the center
 
