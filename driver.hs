@@ -11,27 +11,27 @@ main
 
 window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
 
-drawRect :: Float -> Float -> Float -> Float -> Picture
-drawRect x0 y0 x1 y1
+rect :: Float -> Float -> Float -> Float -> Picture
+rect x0 y0 x1 y1
   = Polygon [(x0, y0), (x0, y1), (x1, y1), (x1, y0)]
 
-drawPixel :: Float -> Float -> Picture
-drawPixel x y
-  = drawRect x y (x+1) (y+1)
+pixel :: Float -> Float -> Picture
+pixel x y
+  = Scale renderScale renderScale
+  $ rect (x - 0.5) (y - 0.5) (x + 0.5) (y + 0.5)
 
-scaleScreen :: Picture -> Picture
-  = Translate 0 0
-  $ Scale renderScale renderScale
+coloredPixel x y
+  = (Color red) (pixel x y)
 
 testPixel :: Picture
 testPixel
-  = scaleScreen
-  $ Color black
-  $ drawRect 0 0 1 1
+  = Color black
+  $ pixel 0 0
 
 testPixels :: Picture
 testPixels
-  = Pictures $ map (drawPixel 0) [0..10]
+  = Pictures
+  $ map (coloredPixel 0) [1..2]
 
 -- Use a resolution of 20 x 20 with 0,0 in the center
 
