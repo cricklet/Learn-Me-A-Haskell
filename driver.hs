@@ -3,11 +3,9 @@ import Graphics.Gloss
 windowSize = 400
 renderScale = 5
 
-main'
- = display window white draw
-
 main
- = do putStrLn $ show testShape
+ = do putStrLn (show testShape)
+      display window white draw
 
 window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
 
