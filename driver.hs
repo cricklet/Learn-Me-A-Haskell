@@ -1,10 +1,7 @@
 import Graphics.Gloss
 
-windowSize = 200
-pixelsSize = 20
-
--- renderScale = windowSize / pixelsSize
-renderScale = 10
+windowSize = 400
+renderScale = 5
 
 main
  = display window white draw
