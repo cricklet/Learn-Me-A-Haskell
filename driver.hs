@@ -4,8 +4,8 @@ windowSize = 400
 renderScale = 5
 
 main
- = putStrLn (show testShape) -- do this
- >> display window white draw -- then this
+ = do let shape = testShape
+      display window white draw
 
 window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
 
