@@ -10,35 +10,37 @@ main
 window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
 
 type Point3D = (Float, Float, Float)
+type Point2D = (Float, Float)
 data Shape = Sphere { center :: Point3D, radius :: Float } deriving (Show)
 
-rect :: Float -> Float -> Float -> Float -> Picture
-rect x0 y0 x1 y1
+rect :: Point2D -> Point2D -> Picture
+rect (x0, y0) (x1, y1)
   = Polygon [(x0, y0), (x0, y1), (x1, y1), (x1, y0)]
 
-pixel :: Float -> Float -> Picture
-pixel x y
+pixel :: Point2D -> Picture
+pixel (x, y)
   = Scale renderScale renderScale
-  $ rect (x - 0.5) (y - 0.5) (x + 0.5) (y + 0.5)
+  $ rect (x - 0.5, y - 0.5) (x + 0.5, y + 0.5)
 
-coloredPixel color x y
-  = (Color color) (pixel x y)
+coloredPixel color p
+  = (Color color) (pixel p)
 
-testPixel :: Picture
-testPixel
-  = Color black
-  $ pixel 0 0
-
-testPixels :: Picture
-testPixels
+coloredLine :: Picture
+coloredLine
   = Pictures
-  $ zipWith3 (\c x y -> coloredPixel c x y)
+  $ zipWith (\c p -> coloredPixel c p)
       [red, yellow, blue, green, black, orange]
-      [1..5] [1..5]
+      (zip [1..5] [1..5])
+
+coloredRect :: Point2D -> Point2D -> Picture
+coloredRect (xMin, yMin) (xMax, yMax)
+  = Pictures
+  $ zipWith (\c p -> coloredPixel c p) colors points
+  where colors = cycle [red, yellow, blue, green, black, orange]
+        points = [ (x, y) | x <- [xMin..xMax], y <- [yMin..yMax] ]
 
 -- Use a resolution of 20 x 20 with 0,0 in the center
 
 draw :: Picture
 draw = do let shape = Sphere { center = (0, 0, 10), radius = 5 }
-          trace (show shape) testPixels
-
+          coloredRect (-20, -20) (20, 20)
