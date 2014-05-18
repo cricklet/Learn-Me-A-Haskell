@@ -2,7 +2,7 @@ import Graphics.Gloss
 import Debug.Trace
 
 windowSize = 400
-renderScale = 5
+renderScale = 4
 
 main
  = do display window white draw
@@ -43,4 +43,4 @@ coloredRect (xMin, yMin) (xMax, yMax)
 
 draw :: Picture
 draw = do let shape = Sphere { center = (0, 0, 10), radius = 5 }
-          coloredRect (-20, -20) (20, 20)
+          coloredRect (-50, -50) (50, 50)
