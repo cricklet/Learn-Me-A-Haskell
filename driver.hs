@@ -11,6 +11,7 @@ window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
 
 type Point3D = (Float, Float, Float)
 type Point2D = (Float, Float)
+type Vector3D = (Float, Float, Float)
 data Shape = Sphere { center :: Point3D, radius :: Float }
            | Cuboid { minPoint :: Point3D, maxPoint :: Float }
             deriving (Show)
@@ -28,9 +29,11 @@ coloredPixel :: Color -> Point2D -> Picture
 coloredPixel color p
   = (Color color) (pixel p)
 
-intersect :: Shape -> Maybe Color
-intersect Sphere { center=center, radius=radius } = Nothing
-intersect Cuboid { minPoint=minPoint, maxPoint=maxPoint } = Nothing
+intersect :: Point3D -> Vector3D -> Shape -> Maybe Color
+intersect start dir Sphere { center=center, radius=radius }
+  = Nothing
+intersect start dir Cuboid { minPoint=minPoint, maxPoint=maxPoint }
+  = Nothing
 
 coloredLine :: Picture
 coloredLine
@@ -39,15 +42,25 @@ coloredLine
       [red, yellow, blue, green, black, orange]
       (zip [1..5] [1..5])
 
+screenPoints :: Point2D -> Point2D -> [Point2D]
+screenPoints (xMin, yMin) (xMax, yMax)
+  = [ (x, y) | x <- [xMin..xMax], y <- [yMin..yMax] ]
+
+cycledColors :: [Color]
+cycledColors = cycle [red, yellow, blue, green, black, orange]
+
 coloredRect :: Point2D -> Point2D -> Picture
-coloredRect (xMin, yMin) (xMax, yMax)
+coloredRect minPoint maxPoint
   = Pictures
-  $ zipWith (\c p -> coloredPixel c p) colors points
-  where colors = cycle [red, yellow, blue, green, black, orange]
-        points = [ (x, y) | x <- [xMin..xMax], y <- [yMin..yMax] ]
+  $ zipWith (\c p -> coloredPixel c p)
+            cycledColors (screenPoints minPoint maxPoint)
+
+drawShape :: Shape -> Picture
+drawShape shape
+  = coloredPixel white (0, 0)
 
 -- Use a resolution of 20 x 20 with 0,0 in the center
 
 draw :: Picture
 draw = do let shape = Sphere { center = (0, 0, 10), radius = 5 }
-          coloredRect (-50, -50) (50, 50)
+          Pictures $ [coloredRect (-50, -50) (50, 50)] ++ [drawShape shape]
