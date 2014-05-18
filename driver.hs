@@ -1,11 +1,11 @@
 import Graphics.Gloss
+import Debug.Trace
 
 windowSize = 400
 renderScale = 5
 
 main
- = do let shape = testShape
-      display window white draw
+ = do display window white draw
 
 window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
 
@@ -36,11 +36,9 @@ testPixels
       [red, yellow, blue, green, black, orange]
       [1..5] [1..5]
 
-testShape
-  = Sphere { center = (0, 0, 10), radius = 5 }
-
 -- Use a resolution of 20 x 20 with 0,0 in the center
 
 draw :: Picture
-draw = testPixels
+draw = do let shape = Sphere { center = (0, 0, 10), radius = 5 }
+          trace (show shape) testPixels
 
