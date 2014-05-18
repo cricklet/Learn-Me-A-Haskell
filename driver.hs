@@ -11,7 +11,9 @@ window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
 
 type Point3D = (Float, Float, Float)
 type Point2D = (Float, Float)
-data Shape = Sphere { center :: Point3D, radius :: Float } deriving (Show)
+data Shape = Sphere { center :: Point3D, radius :: Float }
+           | Cuboid { minPoint :: Point3D, maxPoint :: Float }
+            deriving (Show)
 
 rect :: Point2D -> Point2D -> Picture
 rect (x0, y0) (x1, y1)
@@ -26,9 +28,9 @@ coloredPixel :: Color -> Point2D -> Picture
 coloredPixel color p
   = (Color color) (pixel p)
 
-intersect :: Maybe Color
-intersect
-  = Nothing
+intersect :: Shape -> Maybe Color
+intersect Sphere { center=center, radius=radius } = Nothing
+intersect Cuboid { minPoint=minPoint, maxPoint=maxPoint } = Nothing
 
 coloredLine :: Picture
 coloredLine
