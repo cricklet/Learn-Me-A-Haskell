@@ -22,8 +22,13 @@ pixel (x, y)
   = Scale renderScale renderScale
   $ rect (x - 0.5, y - 0.5) (x + 0.5, y + 0.5)
 
+coloredPixel :: Color -> Point2D -> Picture
 coloredPixel color p
   = (Color color) (pixel p)
+
+intersect :: Maybe Color
+intersect
+  = Nothing
 
 coloredLine :: Picture
 coloredLine
