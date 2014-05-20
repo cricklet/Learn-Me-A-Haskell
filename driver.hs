@@ -16,6 +16,14 @@ data Shape = Sphere { center :: Point3D, radius :: Float }
            | Cuboid { minPoint :: Point3D, maxPoint :: Float }
             deriving (Show)
 
+zipTuple2 :: (a -> a -> a) -> (a, a) -> (a, a) -> (a, a)
+zipTuple2 f (a1, b1) (a2, b2)
+  = (f a1 a2, f b1 b2)
+
+zipTuple3 :: (a -> a -> a) -> (a, a, a) -> (a, a, a) -> (a, a, a)
+zipTuple3 f (a1, b1, c1) (a2, b2, c2)
+  = (f a1 a2, f b1 b2, f c1 c2)
+
 rect :: Point2D -> Point2D -> Picture
 rect (x0, y0) (x1, y1)
   = Polygon [(x0, y0), (x0, y1), (x1, y1), (x1, y0)]
