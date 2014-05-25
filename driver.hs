@@ -45,9 +45,7 @@ coloredPixel :: Color -> ScreenPoint -> Picture
 coloredPixel color p
   = (Color color) (pixel p)
 
--- Use a resolution of 20 x 20 with 0,0 in the center
-
 draw :: Picture
 draw = do let a = (0, 0) :: CameraPoint
-          let b = (1, 1) :: CameraPoint
+          let b = (1, 0.5) :: CameraPoint
           Color blue $ rect (cameraToScreen a) (cameraToScreen b)
