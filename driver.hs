@@ -45,6 +45,10 @@ coloredPixel :: Color -> ScreenPoint -> Picture
 coloredPixel color p
   = (Color color) (pixel p)
 
+-- functions for testing drawing
+cycledColors :: [Color]
+cycledColors = cycle [red, yellow, blue, green, black, orange]
+
 draw :: Picture
 draw = do let a = (0, 0) :: CameraPoint
           let b = (1, 0.5) :: CameraPoint
