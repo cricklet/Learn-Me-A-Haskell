@@ -1,4 +1,3 @@
-module RayTracker where
 import Graphics.Gloss
 import Debug.Trace
 
@@ -49,4 +48,6 @@ coloredPixel color p
 -- Use a resolution of 20 x 20 with 0,0 in the center
 
 draw :: Picture
-draw = coloredPixel red (0, 0)
+draw = do let a = (0, 0) :: CameraPoint
+          let b = (1, 1) :: CameraPoint
+          Color blue $ rect (cameraToScreen a) (cameraToScreen b)
