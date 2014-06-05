@@ -1,3 +1,5 @@
+module Main where
+
 import Graphics.Gloss
 import Debug.Trace
 
@@ -50,6 +52,11 @@ cycledColors :: [Color]
 cycledColors = cycle [red, yellow, blue, green, black, orange]
 
 draw :: Picture
-draw = do let a = (0, 0) :: CameraPoint
-          let b = (1, 0.5) :: CameraPoint
-          Color blue $ rect (cameraToScreen a) (cameraToScreen b)
+draw = do let a = (0.5, 0.5) :: CameraPoint
+          let b = (0.7, 0.7) :: CameraPoint
+          let r1 = Color blue $ rect (cameraToScreen a) (cameraToScreen b)
+          --let c = (-5, -5, 10) :: WorldPoint
+          --let d = (-2, -2, 10) :: WorldPoint
+          --let r2 = Color red $ rect (worldToScreen c) (worldToScreen d)
+          --Pictures [r1, r2]
+          r1
