@@ -24,7 +24,7 @@ worldToCamera (x, y, z) = (x / z, y / z)
 cameraToScreen point
   = m2 (/ fromIntegral 2)
   $ m2 (* fromIntegral windowSize) point
-worldToScreen point = cameraToScreen . worldToCamera
+worldToScreen = cameraToScreen . worldToCamera
 
 -- zip functions
 z2 f (a1, a2) (b1, b2)         = (f a1 b1, f a2 b2)
@@ -51,12 +51,16 @@ coloredPixel color p
 cycledColors :: [Color]
 cycledColors = cycle [red, yellow, blue, green, black, orange]
 
+drawBoxes :: Float -> Float -> Float -> [Picture]
+drawBoxes x y r = do
+  let zs = [20.0, 19.0.. 1.0]
+  let rect = [(x+r,y+r), (x+r,y-r), (x-r,y-r), (x-r,y+r)]
+  let rects = map (\z -> map (\(x,y) -> (x,y,z)) rect) zs
+  let screenRects = map (\rect -> map worldToScreen rect) rects
+
+  zipWith (\rect color -> Color color $ Polygon rect)
+          screenRects cycledColors
+
 draw :: Picture
-draw = do let a = (0.5, 0.5) :: CameraPoint
-          let b = (0.7, 0.7) :: CameraPoint
-          let r1 = Color blue $ rect (cameraToScreen a) (cameraToScreen b)
-          --let c = (-5, -5, 10) :: WorldPoint
-          --let d = (-2, -2, 10) :: WorldPoint
-          --let r2 = Color red $ rect (worldToScreen c) (worldToScreen d)
-          --Pictures [r1, r2]
-          r1
+draw = do
+  Pictures ((drawBoxes (-2) (-2) 1) ++ (drawBoxes 5 1 1) ++ (drawBoxes (-3) 4 1) ++ (drawBoxes (4) (-4) 1))
