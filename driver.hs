@@ -3,15 +3,14 @@ module Main where
 import Graphics.Gloss
 import Debug.Trace
 
-windowSize = 400
+windowSize = 400.0
 
 main
  = do display window white draw
 
-window = InWindow "Hello World" (windowSize, windowSize) (0, 0)
+window = InWindow "Hello World" (floor windowSize, floor windowSize) (0, 0)
 
 type WorldPoint  = (Float, Float, Float)
-type WorldVector = (Float, Float, Float)
 type CameraPoint = (Float, Float)
 type ScreenPoint = (Float, Float)
 data Shape
@@ -22,9 +21,14 @@ data Shape
 -- convert between coordinate systems
 worldToCamera (x, y, z) = (x / z, y / z)
 cameraToScreen point
-  = m2 (/ fromIntegral 2)
-  $ m2 (* fromIntegral windowSize) point
+  = m2 (/ 2.0)
+  $ m2 (* windowSize) point
 worldToScreen = cameraToScreen . worldToCamera
+
+cameraToWorld (x, y) = (x, y, 1)
+screenToCamera point
+  = m2 (* 2.0)
+  $ m2 (/ windowSize) point
 
 -- zip functions
 z2 f (a1, a2) (b1, b2)         = (f a1 b1, f a2 b2)
@@ -41,11 +45,17 @@ rect (x0, y0) (x1, y1)
 
 pixel :: ScreenPoint -> Picture
 pixel point
-  = rect (m2 ((-)0.5) point) (m2 (+0.5) point)
+  = rect (m2 (+ (-0.5)) point) (m2 (+0.5) point)
 
 coloredPixel :: Color -> ScreenPoint -> Picture
 coloredPixel color p
   = (Color color) (pixel p)
+
+-- ray tracing code
+screenPoints :: [ScreenPoint]
+screenPoints = do
+  let axis = map ((-) (windowSize / 2)) [0..windowSize]
+  [(x, y) | x <- axis, y <- axis]
 
 -- functions for testing drawing
 cycledColors :: [Color]
@@ -61,6 +71,17 @@ drawBoxes x y r = do
   zipWith (\rect color -> Color color $ Polygon rect)
           screenRects cycledColors
 
+drawLotsOfBoxes =
+  Pictures ((drawBoxes (-2) (-2) 1) ++
+            (drawBoxes 5 1 1) ++
+            (drawBoxes (-3) 4 1) ++
+            (drawBoxes (4) (-4) 1))
+
+drawColoredPixels
+  = Pictures
+  $ zipWith (\c p -> coloredPixel c p) cycledColors screenPoints
+
 draw :: Picture
-draw = do
-  Pictures ((drawBoxes (-2) (-2) 1) ++ (drawBoxes 5 1 1) ++ (drawBoxes (-3) 4 1) ++ (drawBoxes (4) (-4) 1))
+draw
+  = drawColoredPixels
+
