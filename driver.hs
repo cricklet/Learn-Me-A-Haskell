@@ -81,7 +81,12 @@ drawColoredPixels
   = Pictures
   $ zipWith (\c p -> coloredPixel c p) cycledColors screenPoints
 
+drawSphere
+  = Pictures
+  $ zipWith (\c p -> coloredPixel c p) cycledColors
+  $ filter (\(x, y) -> x < 0 && y < 0) screenPoints
+
 draw :: Picture
 draw
-  = drawColoredPixels
+  = drawSphere
 
