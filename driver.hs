@@ -9,10 +9,15 @@ main
  = do display window white draw
 
 window = InWindow "Hello World" (floor windowSize, floor windowSize) (0, 0)
+type V3 = (Float, Float, Float)
+type V2 = (Float, Float)
 
-type WorldPoint  = (Float, Float, Float)
-type CameraPoint = (Float, Float)
-type ScreenPoint = (Float, Float)
+type WorldPoint  = V3
+type WorldVector = V3
+
+type CameraPoint = V2
+type ScreenPoint = V2
+
 data Shape
   = Sphere { center :: WorldPoint, radius :: Float }
   | Cuboid { minPoint :: WorldPoint, maxPoint :: Float }
@@ -31,8 +36,8 @@ screenToCamera point
   $ m2 (/ windowSize) point
 
 -- zip functions
-z2 f (a1, a2) (b1, b2)         = (f a1 b1, f a2 b2)
-z3 f (a1, a2, a3) (b1, b2, b3) = (f a1 b1, f a2 b2, f a3 b3)
+zw2 f (a1, a2) (b1, b2)         = (f a1 b1, f a2 b2)
+zw3 f (a1, a2, a3) (b1, b2, b3) = (f a1 b1, f a2 b2, f a3 b3)
 
 -- map functions
 m2 f (a1, a2)     = (f a1, f a2)
@@ -55,11 +60,34 @@ coloredPixel color p
 screenPoints :: [ScreenPoint]
 screenPoints = do
   let axis = map ((-) (windowSize / 2)) [0..windowSize]
-  [(x, y) | x <- axis, y <- axis]
+      in [(x, y) | x <- axis, y <- axis]
 
-intersects :: Shape -> WorldPoint -> Bool
-intersects sphere point =
-  True
+magnitude :: WorldVector -> Float
+magnitude v = sqrt $ dot v v
+
+dot :: V3 -> V3 -> Float
+dot (x,y,z) (a,b,c) = x*a + y*b + z*c
+
+add :: V3 -> V3 -> V3
+add v1 v2 = zw3 (+) v1 v2
+
+sub :: V3 -> V3 -> V3
+sub v1 v2 = zw3 (-) v1 v2
+
+distance :: WorldPoint -> WorldPoint -> Float
+distance p1 p2 = magnitude $ sub p1 p2
+
+normalize :: V3 -> V3
+normalize v = m3 (/ (magnitude v)) v
+
+intersects :: Shape -> WorldPoint -> WorldVector -> Bool
+intersects sphere p v =
+  let r = radius sphere
+      o = center sphere
+      l = sub o p
+      tca = dot l (normalize v)
+      d2 = (dot l l) - (tca ^ 2)
+      in (tca >= 0) && (d2 <= r^2)
 
 -- functions for testing drawing
 cycledColors :: [Color]
@@ -68,12 +96,11 @@ cycledColors = cycle [red, yellow, blue, green, black, orange]
 drawBoxes :: Float -> Float -> Float -> [Picture]
 drawBoxes x y r = do
   let zs = [20.0, 19.0.. 1.0]
-  let rect = [(x+r,y+r), (x+r,y-r), (x-r,y-r), (x-r,y+r)]
-  let rects = map (\z -> map (\(x,y) -> (x,y,z)) rect) zs
-  let screenRects = map (\rect -> map worldToScreen rect) rects
-
-  zipWith (\rect color -> Color color $ Polygon rect)
-          screenRects cycledColors
+      rect = [(x+r,y+r), (x+r,y-r), (x-r,y-r), (x-r,y+r)]
+      rects = map (\z -> map (\(x,y) -> (x,y,z)) rect) zs
+      screenRects = map (\rect -> map worldToScreen rect) rects
+      in zipWith (\rect color -> Color color $ Polygon rect)
+                 screenRects cycledColors
 
 drawLotsOfBoxes =
   Pictures ((drawBoxes (-2) (-2) 1) ++
@@ -86,14 +113,14 @@ drawColoredPixels
   $ zipWith (\c p -> coloredPixel c p) cycledColors screenPoints
 
 drawSphere = do
-  let sphere = 1
+  let sphere = Sphere {center = (0,0,10), radius = 5}
+      rays = map cameraToWorld $ map screenToCamera screenPoints
 
-  Pictures
-  $ zipWith (\c p -> coloredPixel c p) cycledColors
-  $ map worldToCamera
-  $ filter (intersects Sphere {center = (0,0,5), radius = 5})
-  $ map cameraToWorld screenPoints
+      in Pictures
+         $ zipWith (\c p -> coloredPixel c p) cycledColors
+         $ map worldToCamera
+         $ filter (intersects sphere (0, 0, 0)) rays
 
 draw :: Picture
 draw
-  = drawSphere
+  = drawLotsOfBoxes
