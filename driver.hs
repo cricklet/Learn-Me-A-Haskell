@@ -57,6 +57,10 @@ screenPoints = do
   let axis = map ((-) (windowSize / 2)) [0..windowSize]
   [(x, y) | x <- axis, y <- axis]
 
+intersects :: Shape -> WorldPoint -> Bool
+intersects sphere point =
+  True
+
 -- functions for testing drawing
 cycledColors :: [Color]
 cycledColors = cycle [red, yellow, blue, green, black, orange]
@@ -81,12 +85,15 @@ drawColoredPixels
   = Pictures
   $ zipWith (\c p -> coloredPixel c p) cycledColors screenPoints
 
-drawSphere
-  = Pictures
+drawSphere = do
+  let sphere = 1
+
+  Pictures
   $ zipWith (\c p -> coloredPixel c p) cycledColors
-  $ filter (\(x, y) -> x < 0 && y < 0) screenPoints
+  $ map worldToCamera
+  $ filter (intersects Sphere {center = (0,0,5), radius = 5})
+  $ map cameraToWorld screenPoints
 
 draw :: Picture
 draw
   = drawSphere
-
