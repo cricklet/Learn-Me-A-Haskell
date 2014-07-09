@@ -95,6 +95,9 @@ intersects sphere p v =
                   t = tca - thc
               in Just $ add p $ mult v t
 
+surfaceNormal :: Shape -> WorldPoint -> WorldVector
+surfaceNormal sphere p = normalize $ sub p $ center sphere
+
 -- functions for testing drawing
 cycledColors :: [Color]
 cycledColors = cycle [red, yellow, blue, green, black, orange]
@@ -121,8 +124,10 @@ drawColoredPixels
 drawIntersection :: Shape -> Maybe WorldPoint -> Color
 drawIntersection sphere intersection =
   case intersection of
-    Just point -> green
-    Nothing -> blue
+    Nothing -> black
+    Just point -> let
+      normal = surfaceNormal sphere point
+      in red
 
 drawRay :: WorldPoint -> WorldVector -> Picture
 drawRay origin ray =
