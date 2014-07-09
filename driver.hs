@@ -20,7 +20,6 @@ type ScreenPoint = V2
 
 data Shape
   = Sphere { center :: WorldPoint, radius :: Float }
-  | Cuboid { minPoint :: WorldPoint, maxPoint :: Float }
   deriving (Show)
 
 -- convert between coordinate systems
@@ -74,20 +73,27 @@ add v1 v2 = zw3 (+) v1 v2
 sub :: V3 -> V3 -> V3
 sub v1 v2 = zw3 (-) v1 v2
 
+mult :: V3 -> Float -> V3
+mult v1 m = m3 (*m) v1
+
 distance :: WorldPoint -> WorldPoint -> Float
 distance p1 p2 = magnitude $ sub p1 p2
 
 normalize :: V3 -> V3
 normalize v = m3 (/ (magnitude v)) v
 
-intersects :: Shape -> WorldPoint -> WorldVector -> Bool
+intersects :: Shape -> WorldPoint -> WorldVector -> Maybe WorldPoint
 intersects sphere p v =
   let r = radius sphere
       o = center sphere
       l = sub o p
       tca = dot l (normalize v)
       d2 = (dot l l) - (tca ^ 2)
-      in (tca >= 0) && (d2 <= r^2)
+      in if (tca < 0) || (d2 > r^2)
+         then Nothing
+         else let thc = sqrt(r^2 - d2)
+                  t = tca - thc
+              in Just $ add p $ mult v t
 
 -- functions for testing drawing
 cycledColors :: [Color]
@@ -95,7 +101,7 @@ cycledColors = cycle [red, yellow, blue, green, black, orange]
 
 drawBoxes :: Float -> Float -> Float -> [Picture]
 drawBoxes x y r = do
-  let zs = [20.0, 19.0.. 1.0]
+  let zs = [20.0, 19.0.. 5.0]
       rect = [(x+r,y+r), (x+r,y-r), (x-r,y-r), (x-r,y+r)]
       rects = map (\z -> map (\(x,y) -> (x,y,z)) rect) zs
       screenRects = map (\rect -> map worldToScreen rect) rects
@@ -112,15 +118,22 @@ drawColoredPixels
   = Pictures
   $ zipWith (\c p -> coloredPixel c p) cycledColors screenPoints
 
-drawSphere = do
-  let sphere = Sphere {center = (0,0,10), radius = 5}
-      rays = map cameraToWorld $ map screenToCamera screenPoints
+drawIntersection :: Shape -> Maybe WorldPoint -> Color
+drawIntersection sphere intersection =
+  case intersection of
+    Just point -> green
+    Nothing -> blue
 
-      in Pictures
-         $ zipWith (\c p -> coloredPixel c p) cycledColors
-         $ map worldToCamera
-         $ filter (intersects sphere (0, 0, 0)) rays
+drawRay :: WorldPoint -> WorldVector -> Picture
+drawRay origin ray =
+  let sphere = Sphere {center = (0,0,10), radius = 5}
+      light = (5,5,0)
+      intersection = intersects sphere origin ray
+      color = drawIntersection sphere intersection
+      screenRay = worldToScreen ray
+      in coloredPixel color screenRay
 
 draw :: Picture
-draw
-  = drawLotsOfBoxes
+draw =
+  let rays = map cameraToWorld $ map screenToCamera screenPoints
+      in Pictures $ map (drawRay (0, 0, 0)) rays
