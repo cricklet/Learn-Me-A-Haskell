@@ -121,20 +121,20 @@ drawColoredPixels
   = Pictures
   $ zipWith (\c p -> coloredPixel c p) cycledColors screenPoints
 
-drawIntersection :: Shape -> Maybe WorldPoint -> Color
-drawIntersection sphere intersection =
+drawReflection :: Shape -> Maybe WorldPoint -> Color
+drawReflection sphere intersection =
   case intersection of
     Nothing -> black
     Just point -> let
+      lightdir = (5,5,-5)
       normal = surfaceNormal sphere point
-      in red
+      in greyN $ dot (normalize normal) (normalize lightdir)
 
 drawRay :: WorldPoint -> WorldVector -> Picture
 drawRay origin ray =
   let sphere = Sphere {center = (0,0,10), radius = 5}
-      light = (5,5,0)
       intersection = intersects sphere origin ray
-      color = drawIntersection sphere intersection
+      color = drawReflection sphere intersection
       screenRay = worldToScreen ray
       in coloredPixel color screenRay
 
